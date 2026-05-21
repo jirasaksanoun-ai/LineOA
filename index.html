@@ -11,7 +11,7 @@
   <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 
-  <!-- Sarabun — อ่านง่าย, ไทย native, mobile friendly -->
+  <!-- Sarabun Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
 
@@ -37,15 +37,14 @@
 
     html {
       height: 100%;
-      /* ป้องกัน iOS bounce scroll */
       overscroll-behavior: none;
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
       background: var(--bg);
-      min-height: 100dvh;          /* dvh = dynamic viewport height, mobile-safe */
-      min-height: 100vh;           /* fallback */
+      min-height: 100dvh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -55,7 +54,6 @@
       color: var(--text);
     }
 
-    /* ── CARD ────────────────────────── */
     .card {
       width: 100%;
       max-width: 400px;
@@ -71,7 +69,6 @@
       to   { opacity:1; transform: translateY(0); }
     }
 
-    /* ── HEADER ──────────────────────── */
     .hd {
       background: var(--green);
       padding: 36px 28px 28px;
@@ -80,7 +77,6 @@
       overflow: hidden;
     }
 
-    /* วงกลม decoration */
     .hd::before {
       content:'';
       position:absolute; inset:0;
@@ -103,10 +99,8 @@
     .hd h1 { font-size: 20px; font-weight: 600; color: #fff; }
     .hd p  { font-size: 13px; color: rgba(255,255,255,.78); margin-top: 5px; font-weight: 300; }
 
-    /* ── FORM BODY ───────────────────── */
     .body { padding: 24px 24px 28px; }
 
-    /* Error banner */
     .err {
       display: none;
       align-items: center;
@@ -116,9 +110,10 @@
       border-radius: var(--radius-sm);
       padding: 11px 14px;
       margin-bottom: 16px;
-      font-size: 13.5px;
+      font-size: 13px;
       color: var(--error-text);
       animation: shake .35s both;
+      line-height: 1.4;
     }
     .err.show { display: flex; }
     .err svg  { width:16px; height:16px; stroke: var(--error-text); fill:none; flex-shrink:0; }
@@ -131,7 +126,6 @@
       80%    { transform:translateX(4px) }
     }
 
-    /* Field */
     .field { margin-bottom: 16px; }
     label  { display:block; font-size:12.5px; font-weight:500; color:var(--text-sub); margin-bottom:7px; letter-spacing:.3px; }
 
@@ -151,7 +145,7 @@
       border: 1.5px solid var(--border);
       border-radius: var(--radius-sm);
       font-family: inherit;
-      font-size: 16px;           /* 16px ป้องกัน iOS zoom เวลา focus */
+      font-size: 16px;
       font-weight: 400;
       color: var(--text);
       background: #FAFAFA;
@@ -168,19 +162,16 @@
 
     .inp-wrap:focus-within .ico { stroke: var(--green); }
 
-    /* eye toggle */
     .eye {
       position:absolute; right:12px; top:50%; transform:translateY(-50%);
       background:none; border:none; cursor:pointer; padding:6px;
       color:var(--text-hint); display:flex; align-items:center;
       transition:color .18s; -webkit-appearance:none;
-      /* ขยาย touch target */
       min-width:44px; min-height:44px; justify-content:center;
     }
     .eye:hover { color:var(--text-sub); }
     .eye svg   { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; }
 
-    /* Submit */
     .btn {
       width:100%; padding: 15px;
       background: var(--green);
@@ -190,7 +181,6 @@
       cursor:pointer; margin-top:4px;
       transition: background .18s, transform .1s;
       -webkit-appearance:none;
-      /* ป้องกัน double-tap zoom บน iOS */
       touch-action: manipulation;
     }
     .btn:hover  { background: var(--green-dark); }
@@ -208,7 +198,6 @@
     .btn.loading .spin { display:block; }
     @keyframes rot { to{ transform:rotate(360deg) } }
 
-    /* ── SUCCESS ─────────────────────── */
     .success {
       display:none; flex-direction:column;
       align-items:center; text-align:center;
@@ -231,14 +220,12 @@
     .success h2 { font-size:18px; font-weight:600; margin-bottom:8px; }
     .success p  { font-size:14px; color:var(--text-sub); line-height:1.6; }
 
-    /* Footer */
     .foot {
       font-size:12px; color:var(--text-hint);
       text-align:center; margin-top:16px;
       animation: rise .4s .2s both;
     }
 
-    /* ── RESPONSIVE safety ───────────── */
     @media (max-height: 640px) {
       .hd   { padding: 24px 24px 20px; }
       .logo { width:48px; height:48px; margin-bottom:10px; }
@@ -322,7 +309,7 @@
 <p class="foot">ข้อมูลของคุณปลอดภัยและเข้ารหัสอย่างสมบูรณ์</p>
 
 <script>
-  // ── CONFIG ── แก้ 2 ค่านี้ก่อน deploy
+  // ── CONFIG ──
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbw7Yj8Et8WJRNuxEMpHclaixzlY0GGB8BrCTjEs_DMeg0SeYKdWbGHbdgmWtPm5jdPaog/exec';
   const LIFF_ID = '2009669941-3GqUOIwk';
 
@@ -342,30 +329,43 @@
       lineUserId = profile.userId;
 
     } catch (err) {
-      showErr('ไม่สามารถเชื่อมต่อ LINE ได้ กรุณาลองใหม่');
-      console.error('LIFF init:', err);
+      showErr('ไม่สามารถเชื่อมต่อระบบ LINE ได้ชั่วคราว กรุณาลองเปิดใหม่อีกครั้ง');
+      console.error('LIFF init error:', err);
     }
   })();
 
   // ── LOGIN ────────────────────────────────────────────────────
   async function doLogin() {
     const user = document.getElementById('username').value.trim();
-    const pass = document.getElementById('password').value;
+    const pass = document.getElementById('password').value.trim();
 
     if (!user) { showErr('กรุณากรอกชื่อผู้ใช้'); return; }
     if (!pass) { showErr('กรุณากรอกรหัสผ่าน');  return; }
-    if (!lineUserId) { showErr('ไม่พบข้อมูล LINE กรุณาปิดแล้วเปิดใหม่'); return; }
+    if (!lineUserId) { showErr('ไม่พบข้อมูลบัญชี LINE กรุณาปิดแล้วเปิดขึ้นมาใหม่อีกครั้งครับ'); return; }
 
     hideErr();
     setLoading(true);
 
     try {
+      // 💡 [จุดสำคัญ] เปลี่ยน Content-Type เป็น text/plain เพื่อหลบเลี่ยงปัญหา CORS Preflight (OPTIONS)
+      // Google Apps Script สามารถดึง JSON ไปแกะประมวลผลได้เหมือนเดิม ปลอดภัย และเสถียร 100% บนมือถือ
       const res  = await fetch(GAS_URL, {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body:    JSON.stringify({ action: 'login', username: user, password: pass, lineUserId }),
       });
-      const data = await res.json();
+      
+      const responseText = await res.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (jsonErr) {
+        console.error("GAS returned non-JSON response:", responseText);
+        showErr('การตั้งค่าหลังบ้านผิดพลาด: เซิร์ฟเวอร์ไม่ตอบกลับมาเป็น JSON (โปรดเช็คสิทธิ์ Web App ใน GAS หรือล็อกอินของ Google Developer)');
+        setLoading(false);
+        return;
+      }
 
       if (data.success) {
         showSuccess(data.name || user);
@@ -376,13 +376,13 @@
         showErr(data.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
       }
     } catch (err) {
-      showErr('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง');
+      console.error('Login request fail:', err);
+      showErr('ไม่สามารถติดต่อเซิร์ฟเวอร์หลักได้ (กรุณาตรวจสอบว่าได้ตั้งค่า Web App ใน GAS ให้เข้าถึงได้แบบ "Anyone" หรือยังครับ)');
     } finally {
       setLoading(false);
     }
   }
 
-  // Enter to submit
   document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
   // ── UI HELPERS ───────────────────────────────────────────────
@@ -403,7 +403,7 @@
 
   function showSuccess(name) {
     document.getElementById('formBody').classList.add('hide');
-    document.getElementById('successName').innerHTML = `ยินดีต้อนรับ <strong>${name}</strong><br>กำลังปิดหน้าต่างนี้...`;
+    document.getElementById('successName').innerHTML = `ยินดีต้อนรับคุณ <strong>${name}</strong><br>กำลังพากลับหน้าแชตอัตโนมัติ...`;
     document.getElementById('successBox').classList.add('show');
   }
 
