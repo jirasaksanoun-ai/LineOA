@@ -6,12 +6,12 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>เข้าสู่ระบบ</title>
+  <title>เข้าสู่ระบบพนักงาน</title>
 
   <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 
-  <!-- Sarabun Font (เพื่อความสวยงาม เป็นทางการ และอ่านง่ายบนสมาร์ทโฟนทุกรุ่น) -->
+  <!-- Sarabun Font (อ่านง่าย ลื่นไหลบนสมาร์ทโฟน) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -36,31 +36,82 @@
     }
 
     html {
-      height: 100%;
-      overscroll-behavior: none;
+      background: var(--bg);
+      overflow-y: auto;
+      -webkit-text-size-adjust: 100%;
     }
 
     body {
       font-family: 'Sarabun', sans-serif;
       background: var(--bg);
-      min-height: 100dvh;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: env(safe-area-inset-top, 16px) 20px env(safe-area-inset-bottom, 24px);
+      justify-content: flex-start;
+      padding: env(safe-area-inset-top, 24px) 20px env(safe-area-inset-bottom, 32px);
       -webkit-font-smoothing: antialiased;
       color: var(--text);
     }
 
-    .card {
+    .container {
       width: 100%;
       max-width: 400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .err {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--error-bg);
+      border: 1.5px solid var(--error-bd);
+      border-radius: var(--radius);
+      padding: 16px;
+      font-size: 13.5px;
+      color: var(--error-text);
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
+      animation: shake .35s both;
+      line-height: 1.5;
+    }
+    .err.show { display: flex; }
+    
+    .err-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+    .err-title-wrap svg { width:18px; height:18px; stroke: var(--error-text); fill:none; flex-shrink:0; margin-top: 1px; }
+    
+    .err-details {
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      font-family: monospace;
+      font-size: 11.5px;
+      max-height: 100px;
+      overflow-y: auto;
+      word-break: break-all;
+      border: 1px dashed var(--error-bd);
+    }
+
+    @keyframes shake {
+      0%,100%{ transform:translateX(0) }
+      20%    { transform:translateX(-6px) }
+      40%    { transform:translateX(6px) }
+      60%    { transform:translateX(-4px) }
+      80%    { transform:translateX(4px) }
+    }
+
+    .card {
+      width: 100%;
       background: var(--surface);
       border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 2px 24px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
       animation: rise .4s cubic-bezier(.22,1,.36,1) both;
     }
 
@@ -71,9 +122,10 @@
 
     .hd {
       background: var(--green);
-      padding: 36px 28px 28px;
+      padding: 32px 24px 24px;
       text-align: center;
       position: relative;
+      border-radius: 24px 24px 0 0;
       overflow: hidden;
     }
 
@@ -85,50 +137,22 @@
     }
 
     .logo {
-      width: 60px; height: 60px;
+      width: 56px; height: 56px;
       background: rgba(255,255,255,.22);
-      border-radius: 18px;
+      border-radius: 16px;
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 14px;
+      margin: 0 auto 12px;
       backdrop-filter: blur(6px);
-      position: relative;
     }
+    .logo svg { width:28px; height:28px; fill:#fff; }
 
-    .logo svg { width:32px; height:32px; fill:#fff; }
+    .hd h1 { font-size: 19px; font-weight: 700; color: #fff; }
+    .hd p  { font-size: 13px; color: rgba(255,255,255,.8); margin-top: 4px; font-weight: 300; }
 
-    .hd h1 { font-size: 20px; font-weight: 600; color: #fff; }
-    .hd p  { font-size: 13px; color: rgba(255,255,255,.78); margin-top: 5px; font-weight: 300; }
-
-    .body { padding: 24px 24px 28px; }
-
-    /* ปรับแต่งส่วนแสดงผลความผิดพลาด ให้รองรับประโยคยาวๆ ได้ดี */
-    .err {
-      display: none;
-      align-items: flex-start;
-      gap: 10px;
-      background: var(--error-bg);
-      border: 1.5px solid var(--error-bd);
-      border-radius: var(--radius-sm);
-      padding: 14px;
-      margin-bottom: 18px;
-      font-size: 13.5px;
-      color: var(--error-text);
-      animation: shake .35s both;
-      line-height: 1.5;
-    }
-    .err.show { display: flex; }
-    .err svg  { width:18px; height:18px; stroke: var(--error-text); fill:none; flex-shrink:0; margin-top: 1px; }
-
-    @keyframes shake {
-      0%,100%{ transform:translateX(0) }
-      20%    { transform:translateX(-6px) }
-      40%    { transform:translateX(6px) }
-      60%    { transform:translateX(-4px) }
-      80%    { transform:translateX(4px) }
-    }
+    .body { padding: 24px; }
 
     .field { margin-bottom: 16px; }
-    label  { display:block; font-size:12.5px; font-weight:500; color:var(--text-sub); margin-bottom:7px; letter-spacing:.3px; }
+    label  { display:block; font-size:12.5px; font-weight:600; color:var(--text-sub); margin-bottom:7px; letter-spacing:.3px; }
 
     .inp-wrap { position:relative; }
 
@@ -178,8 +202,8 @@
       background: var(--green);
       color:#fff; border:none;
       border-radius: var(--radius-sm);
-      font-family:inherit; font-size:16px; font-weight:600;
-      cursor:pointer; margin-top:4px;
+      font-family:inherit; font-size:16px; font-weight:700;
+      cursor:pointer; margin-top:8px;
       transition: background .18s, transform .1s;
       -webkit-appearance:none;
       touch-action: manipulation;
@@ -202,7 +226,7 @@
     .success {
       display:none; flex-direction:column;
       align-items:center; text-align:center;
-      padding: 36px 24px 32px;
+      padding: 40px 24px;
     }
     .success.show { display:flex; }
     .body.hide    { display:none; }
@@ -218,103 +242,106 @@
     .tick svg { width:34px; height:34px; stroke:var(--green); fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
     @keyframes pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
 
-    .success h2 { font-size:18px; font-weight:600; margin-bottom:8px; }
+    .success h2 { font-size:18px; font-weight:700; margin-bottom:8px; }
     .success p  { font-size:14px; color:var(--text-sub); line-height:1.6; }
 
     .foot {
       font-size:12px; color:var(--text-hint);
-      text-align:center; margin-top:16px;
-      animation: rise .4s .2s both;
-    }
-
-    @media (max-height: 640px) {
-      .hd   { padding: 24px 24px 20px; }
-      .logo { width:48px; height:48px; margin-bottom:10px; }
-      .hd h1{ font-size:18px; }
-      .body { padding: 20px 20px 24px; }
+      text-align:center; margin-top:8px;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
 
-<div class="card">
+<div class="container">
 
-  <!-- HEADER -->
-  <div class="hd">
-    <div class="logo">
-      <svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zm-2 10H6V10h12v2zm0-4H6V6h12v2z"/></svg>
-    </div>
-    <h1>เข้าสู่ระบบ</h1>
-    <p>กรุณายืนยันตัวตนเพื่อใช้งาน</p>
-  </div>
-
-  <!-- FORM BODY -->
-  <div class="body" id="formBody">
-
-    <!-- ส่วนแสดง Error แบบละเอียด -->
-    <div class="err" id="errBox">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- กล่องแสดงข้อผิดพลาด (ลอยเด่นอยู่นอกกล่อง Card) -->
+  <div class="err" id="errBox">
+    <div class="err-title-wrap">
+      <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
         <line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
-      <span id="errText">เกิดข้อผิดพลาดในการตรวจสอบข้อมูล</span>
+      <span id="errBrief">เกิดข้อผิดพลาดในการตรวจสอบระบบ</span>
     </div>
+    <div class="err-details" id="errDetails">
+      กรุณาตรวจสอบการตั้งค่า Token LINE หรือสิทธิ์ความปลอดภัยใน Google Apps Script
+    </div>
+  </div>
 
-    <!-- ฟิลด์ชื่อผู้ใช้ -->
-    <div class="field">
-      <label for="username">ชื่อผู้ใช้ (Username)</label>
-      <div class="inp-wrap">
-        <input type="text" id="username" placeholder="กรอกชื่อผู้ใช้ของคุณ"
-               autocomplete="username" autocapitalize="none" spellcheck="false"
-               inputmode="text">
-        <svg class="ico" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
+  <!-- CARD ฟอร์มล็อกอิน -->
+  <div class="card">
+
+    <!-- HEADER -->
+    <div class="hd">
+      <div class="logo">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zm-2 10H6V10h12v2zm0-4H6V6h12v2z"/></svg>
       </div>
+      <h1>เข้าสู่ระบบ</h1>
+      <p>กรุณายืนยันตัวตนพนักงานเพื่อใช้งาน AI Assistant</p>
     </div>
 
-    <!-- ฟิลด์รหัสผ่าน -->
-    <div class="field">
-      <label for="password">รหัสผ่าน (Password)</label>
-      <div class="inp-wrap">
-        <input type="password" id="password" placeholder="กรอกรหัสผ่านของคุณ"
-               autocomplete="current-password">
-        <svg class="ico" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
-        </svg>
-        <button class="eye" id="eyeBtn" type="button" onclick="togglePw()" aria-label="แสดง/ซ่อนรหัสผ่าน">
-          <svg id="eyeIco" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-            <circle cx="12" cy="12" r="3"/>
+    <!-- FORM INPUTS -->
+    <div class="body" id="formBody">
+
+      <!-- ช่องกรอก Username -->
+      <div class="field">
+        <label for="username">ชื่อผู้ใช้ (Username)</label>
+        <div class="inp-wrap">
+          <input type="text" id="username" placeholder="กรอกชื่อผู้ใช้พนักงาน"
+                 autocomplete="username" autocapitalize="none" spellcheck="false"
+                 inputmode="text">
+          <svg class="ico" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
           </svg>
-        </button>
+        </div>
       </div>
+
+      <!-- ช่องกรอก Password -->
+      <div class="field">
+        <label for="password">รหัสผ่าน (Password)</label>
+        <div class="inp-wrap">
+          <input type="password" id="password" placeholder="กรอกรหัสผ่านพนักงาน"
+                 autocomplete="current-password">
+          <svg class="ico" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          <button class="eye" id="eyeBtn" type="button" onclick="togglePw()" aria-label="แสดง/ซ่อนรหัสผ่าน">
+            <svg id="eyeIco" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ปุ่มตกลง -->
+      <button class="btn" id="loginBtn" onclick="doLogin()">
+        <span class="lbl">ลงชื่อเข้าใช้งาน</span>
+        <div class="spin"></div>
+      </button>
+
     </div>
 
-    <!-- ปุ่มตกลงล็อกอิน -->
-    <button class="btn" id="loginBtn" onclick="doLogin()">
-      <span class="lbl">เข้าสู่ระบบ</span>
-      <div class="spin"></div>
-    </button>
+    <!-- SUCCESS -->
+    <div class="success" id="successBox">
+      <div class="tick">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2>ยินดีต้อนรับพนักงานสำเร็จ!</h2>
+      <p id="successName">กำลังปิดหน้าต่างนี้เพื่อคุยกับผู้ช่วย AI HR...</p>
+    </div>
 
   </div>
 
-  <!-- SUCCESS BOX (ซ่อนไว้ก่อน ทำงานเมื่อล็อกอินเสร็จ) -->
-  <div class="success" id="successBox">
-    <div class="tick">
-      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-    </div>
-    <h2>เข้าสู่ระบบสำเร็จ!</h2>
-    <p id="successName">กำลังปิดหน้าต่างและพากลับหน้าแชตอัตโนมัติ...</p>
-  </div>
+  <p class="foot">การเชื่อมต่อและข้อมูลทั้งหมดถูกปกป้องและเข้ารหัสตามมาตรฐาน PDPA</p>
 
 </div>
 
-<p class="foot">ข้อมูลของคุณปลอดภัยและได้รับการปกป้องตามนโยบาย PDPA</p>
-
 <script>
-  // ── CONFIG (โปรดตรวจสอบค่าเหล่านี้ให้ตรงกับระบบของคุณ) ──
+  // ── CONFIG ──
   const GAS_URL = 'https://script.google.com/macros/s/AKfycbw7Yj8Et8WJRNuxEMpHclaixzlY0GGB8BrCTjEs_DMeg0SeYKdWbGHbdgmWtPm5jdPaog/exec';
   const LIFF_ID = '2009669941-3GqUOIwk';
 
@@ -332,11 +359,11 @@
 
       const profile = await liff.getProfile();
       lineUserId = profile.userId;
-      console.log('LIFF init successfully! lineUserId:', lineUserId);
+      console.log('LINE LIFF เชื่อมต่อเรียบร้อยแล้ว! UID:', lineUserId);
 
     } catch (err) {
-      showErr('ไม่สามารถเชื่อมต่อระบบ LINE ได้ กรุณาปิดแล้วลองเปิดใหม่อีกครั้งครับ');
-      console.error('LIFF initialization failed:', err);
+      showErr('เกิดความขัดข้องในการเรียกใช้ SDK ของ LINE', 'กรุณาเปิดหน้าล็อกอินนี้บนแอป LINE โดยตรง หรือลองล้างหน่วยความจำแอปแล้วกดลองใหม่อีกครั้งครับ');
+      console.error('LIFF init failed:', err);
     }
   })();
 
@@ -345,15 +372,14 @@
     const user = document.getElementById('username').value.trim();
     const pass = document.getElementById('password').value.trim();
 
-    if (!user) { showErr('กรุณากรอกชื่อผู้ใช้ครับ'); return; }
-    if (!pass) { showErr('กรุณากรอกรหัสผ่านครับ');  return; }
-    if (!lineUserId) { showErr('ไม่พบข้อมูลบัญชี LINE โปรดปิดแอปแล้วเปิดลิงก์นี้ใหม่อีกครั้งครับ'); return; }
+    if (!user) { showErr('เตือนข้อมูลไม่ครบถ้วน', 'กรุณากรอกชื่อผู้ใช้พนักงาน (Username) ด้วยครับ'); return; }
+    if (!pass) { showErr('เตือนข้อมูลไม่ครบถ้วน', 'กรุณากรอกรหัสผ่านพนักงาน (Password) ด้วยครับ');  return; }
+    if (!lineUserId) { showErr('เกิดความล้มเหลว', 'ไม่พบประวัติไอดี LINE (UID) กรุณากดปิดแชตและกดเชื่อมต่อใหม่อีกครั้งครับ'); return; }
 
     hideErr();
     setLoading(true);
 
     try {
-      // 💡 ส่งข้อมูลผ่านรูปแบบ text/plain เพื่อป้องกัน CORS Preflight (OPTIONS Request) บล็อกการส่งข้ามโดเมน
       const res = await fetch(GAS_URL, {
         method:  'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -367,34 +393,39 @@
         data = JSON.parse(responseText);
       } catch (jsonErr) {
         console.error("GAS returned non-JSON response:", responseText);
-        // แสดงข้อความความผิดพลาดที่ละเอียดขึ้นเมื่อระบบหลังบ้าน GAS พัง เพื่อให้ผู้ดูแลระบบเห็นจุดผิดปกติได้ทันที
-        showErr('หลังบ้านทำงานผิดพลาด (ไม่สามารถแกะรหัสเป็นข้อมูลชุดได้): ' + responseText.substring(0, 120) + '...');
+        showErr('การตอบกลับจาก Google ผิดปกติ (เซิร์ฟเวอร์ไม่ได้ตอบเป็น JSON)', responseText);
         setLoading(false);
         return;
       }
 
       if (data.success) {
-        showSuccess(data.name || user);
-        setTimeout(() => {
-          if (liff.isInClient()) {
-            liff.closeWindow();
-          } else {
-            showErr('ระบบเข้าสู่ระบบเรียบร้อยแล้ว! แต่รันนอกแอปพลิเคชัน LINE จึงไม่สามารถปิดหน้าต่างเองได้ กรุณากดปิดหน้านี้เองเพื่อคุยต่อในแชตนะครับ');
-          }
-        }, 2000);
+        // 💡 [อัปเดตใหม่] หากเข้าสู่ระบบสำเร็จแต่หลังบ้านแจ้งเตือนว่าสลับริชเมนูไม่สำเร็จ ให้รายงานข้อผิดพลาดเชิงลึกให้พนักงานเห็นทันที
+        if (data.warning) {
+          showErr('สลับริชเมนูไม่สำเร็จ (แต่เข้าระบบแล้ว)', data.warning + ' (กรุณาแคปหน้าจอนี้ส่งแจ้งผู้ดูแลระบบเพื่อแก้ไขสิทธิ์ใน Google Apps Script)');
+          setLoading(false);
+          // ปล่อยให้เซสชันค้างไว้ และปิดหน้าจอหลังจากแจ้งเตือน 7 วินาที
+          setTimeout(() => { if (liff.isInClient()) liff.closeWindow(); }, 7000);
+        } else {
+          showSuccess(data.name || user);
+          setTimeout(() => {
+            if (liff.isInClient()) {
+              liff.closeWindow();
+            } else {
+              showErr('ระบบทำรายการสำเร็จเรียบร้อย!', 'คุณผ่านการเข้าสู่ระบบแล้ว แต่เนื่องจากเปิดบนเว็บภายนอกที่ไม่ใช่แอป LINE สคริปต์จึงไม่สามารถปิดหน้านี้อัตโนมัติได้ ให้กดกากบาทเพื่อปิดหน้านี้และกลับไปคุยกับบอทได้เลยครับ!');
+            }
+          }, 2000);
+        }
       } else {
-        // ดึง Error Message ตรงตัวจากหลังบ้าน Google Apps Script มาแสดงให้ผู้ใช้รับรู้
-        showErr(data.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง โปรดตรวจสอบข้อมูลอีกครั้งครับ');
+        showErr('เข้าสู่ระบบไม่สำเร็จ', data.message || 'ชื่อผู้ใช้หรือรหัสผ่านพนักงานไม่ถูกต้องครับ');
       }
     } catch (err) {
-      console.error('Network request failed:', err);
-      showErr('เกิดปัญหาขัดข้องทางโครงข่ายอินเทอร์เน็ต หรือ สิทธิ์ Web App ของ Google Apps Script ไม่ได้ตั้งค่าเป็น "Anyone" ครับ');
+      console.error('Network/CORS request failed:', err);
+      showErr('ไม่สามารถเชื่อมต่อเครื่องเซิร์ฟเวอร์หลังบ้านได้', 'โปรดตรวจสอบให้แน่ใจว่าได้ทำการสั่ง Deploy ใน Google Apps Script แล้วและอนุญาตให้เข้าถึงได้แบบ "Anyone" และตรวจสอบว่า GAS_URL ของคุณตรงกันแล้วหรือยังครับ');
     } finally {
       setLoading(false);
     }
   }
 
-  // กดปุ่ม Enter บนคีย์บอร์ดแล้วทำการส่งล็อกอินได้ทันที
   document.addEventListener('keydown', e => { 
     if (e.key === 'Enter') doLogin(); 
   });
@@ -406,14 +437,17 @@
     b.disabled = on;
   }
 
-  function showErr(msg) {
-    document.getElementById('errText').textContent = msg;
+  function showErr(brief, details) {
+    document.getElementById('errBrief').textContent = brief;
+    document.getElementById('errDetails').textContent = details;
     document.getElementById('errBox').classList.add('show');
-    // ปลุกเอฟเฟกต์สั่นเตือนเมื่อกรอกรหัสผิด
+    
     const errBox = document.getElementById('errBox');
     errBox.style.animation = 'none';
-    errBox.offsetHeight; /* Trigger reflow */
+    errBox.offsetHeight; /* trigger reflow */
     errBox.style.animation = null;
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function hideErr() {
@@ -422,7 +456,7 @@
 
   function showSuccess(name) {
     document.getElementById('formBody').classList.add('hide');
-    document.getElementById('successName').innerHTML = `ยินดีต้อนรับ คุณ <strong>${name}</strong><br>ระบบตรวจความถูกต้องเรียบร้อย กำลังพากลับหน้าแชต...`;
+    document.getElementById('successName').innerHTML = `ยินดีต้อนรับ คุณ <strong>${name}</strong><br>ผ่านการตรวจสอบสิทธิ์แล้ว กำลังพาคุณกลับห้องแชต...`;
     document.getElementById('successBox').classList.add('show');
   }
 
