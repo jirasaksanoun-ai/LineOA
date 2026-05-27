@@ -6,33 +6,53 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>เข้าสู่ระบบพนักงาน</title>
+  <title>เข้าสู่ระบบพนักงาน | AI Assistant Portal</title>
 
   <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 
   <!-- Sarabun Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
 
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    *, *::before, *::after { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      -webkit-tap-highlight-color: transparent; 
+    }
 
     :root {
-      --green:       #06C755;
-      --green-dark:  #04A844;
-      --green-soft:  #E7F9EE;
-      --text:        #111827;
-      --text-sub:    #6B7280;
-      --text-hint:   #9CA3AF;
-      --bg:          #F5F7FA;
-      --surface:     #FFFFFF;
-      --border:      #E5E7EB;
-      --error-bg:    #FEF2F2;
-      --error-bd:    #FECACA;
-      --error-text:  #DC2626;
-      --radius:      16px;
-      --radius-sm:   10px;
+      --primary-gradient: linear-gradient(135deg, #05D55F 0%, #02943B 100%);
+      --bg-gradient: radial-gradient(circle at 50% 0%, #F0FDF4 0%, #F8FAFC 60%, #EEF2F6 100%);
+      --green:         #06C755;
+      --green-dark:    #039B40;
+      --green-soft:    #ECFDF5;
+      --green-glow:    rgba(6, 199, 85, 0.15);
+      
+      --text:          #0F172A;
+      --text-sub:      #475569;
+      --text-hint:     #94A3B8;
+      --bg:            #F8FAFC;
+      --surface:       rgba(255, 255, 255, 0.85);
+      --border:        #E2E8F0;
+      --border-focus:  #06C755;
+      
+      --error-bg:      #FEF2F2;
+      --error-bd:      #FCA5A5;
+      --error-text:    #991B1B;
+      --error-light:   #EF4444;
+      
+      --radius-lg:     24px;
+      --radius-md:     16px;
+      --radius-sm:     12px;
+      
+      --shadow-sm:     0 2px 8px rgba(0,0,0,0.04);
+      --shadow-md:     0 10px 30px rgba(15, 23, 42, 0.06);
+      --shadow-lg:     0 20px 40px rgba(15, 23, 42, 0.1);
+      --shadow-focus:  0 0 0 4px rgba(6, 199, 85, 0.15);
     }
 
     html {
@@ -42,213 +62,435 @@
     }
 
     body {
-      font-family: 'Sarabun', sans-serif;
-      background: var(--bg);
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg-gradient);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       padding: env(safe-area-inset-top, 24px) 20px env(safe-area-inset-bottom, 32px);
       -webkit-font-smoothing: antialiased;
       color: var(--text);
+      position: relative;
+    }
+
+    /* Ambient background lights (AI Era 5.0 Look) */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -10%;
+      left: -10%;
+      width: 40%;
+      height: 40%;
+      background: radial-gradient(circle, rgba(6, 199, 85, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      bottom: -10%;
+      right: -10%;
+      width: 50%;
+      height: 50%;
+      background: radial-gradient(circle, rgba(2, 148, 59, 0.06) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
     }
 
     .container {
       width: 100%;
-      max-width: 400px;
+      max-width: 420px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
+      position: relative;
+      z-index: 1;
     }
 
+    /* Modern Glassmorphic Alert Box */
     .err {
       display: none;
       flex-direction: column;
-      gap: 6px;
-      background: var(--error-bg);
-      border: 1.5px solid var(--error-bd);
-      border-radius: var(--radius);
+      gap: 8px;
+      background: rgba(254, 242, 242, 0.9);
+      border: 1px solid var(--error-bd);
+      border-radius: var(--radius-md);
       padding: 16px;
-      font-size: 13.5px;
+      font-size: 14px;
       color: var(--error-text);
-      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
-      animation: shake .35s both;
+      box-shadow: 0 12px 24px rgba(220, 38, 38, 0.06);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      animation: shake .4s both;
       line-height: 1.5;
     }
+    
     .err.show { display: flex; }
     
     .err-title-wrap {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-weight: 700;
+      color: var(--error-light);
     }
-    .err-title-wrap svg { width:18px; height:18px; stroke: var(--error-text); fill:none; flex-shrink:0; margin-top: 1px; }
+    .err-title-wrap svg { 
+      width: 20px; height: 20px; 
+      stroke: currentColor; fill: none; 
+      flex-shrink: 0; 
+    }
     
     .err-details {
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.7);
       border-radius: var(--radius-sm);
-      padding: 10px;
-      font-family: monospace;
-      font-size: 11.5px;
-      max-height: 100px;
+      padding: 10px 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      max-height: 120px;
       overflow-y: auto;
       word-break: break-all;
-      border: 1px dashed var(--error-bd);
+      border: 1px dashed rgba(239, 68, 68, 0.3);
+      color: var(--text-sub);
     }
 
     @keyframes shake {
-      0%,100%{ transform:translateX(0) }
-      20%    { transform:translateX(-6px) }
-      40%    { transform:translateX(6px) }
-      60%    { transform:translateX(-4px) }
-      80%    { transform:translateX(4px) }
+      0%, 100% { transform: translateX(0); }
+      15%  { transform: translateX(-8px); }
+      30%  { transform: translateX(6px); }
+      45%  { transform: translateX(-6px); }
+      60%  { transform: translateX(4px); }
+      75%  { transform: translateX(-2px); }
     }
 
+    /* Main Modern Login Card */
     .card {
       width: 100%;
       background: var(--surface);
-      border-radius: 24px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      animation: rise .4s cubic-bezier(.22,1,.36,1) both;
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
     }
 
     @keyframes rise {
-      from { opacity:0; transform: translateY(20px); }
-      to   { opacity:1; transform: translateY(0); }
+      from { opacity: 0; transform: translateY(30px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
+    /* Elegant Banner Header with Gradient Mesh */
     .hd {
-      background: var(--green);
-      padding: 32px 24px 24px;
+      background: var(--primary-gradient);
+      padding: 40px 28px 28px;
       text-align: center;
       position: relative;
-      border-radius: 24px 24px 0 0;
       overflow: hidden;
     }
 
+    /* Mesh circles for futuristic visual depth */
     .hd::before {
-      content:'';
-      position:absolute; inset:0;
-      background: radial-gradient(circle at 80% -10%, rgba(255,255,255,.15) 0%, transparent 60%);
-      pointer-events:none;
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+    .hd::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -20px;
+      width: 140px; height: 140px;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 75%);
+      border-radius: 50%;
     }
 
+    /* Logo Frame with Neon-Glow style */
     .logo {
-      width: 56px; height: 56px;
-      background: rgba(255,255,255,.22);
-      border-radius: 16px;
+      width: 64px; height: 64px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      border-radius: 20px;
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 12px;
-      backdrop-filter: blur(6px);
+      margin: 0 auto 16px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: transform 0.4s ease;
     }
-    .logo svg { width:28px; height:28px; fill:#fff; }
+    .card:hover .logo {
+      transform: scale(1.06) rotate(5deg);
+    }
+    .logo svg { width: 32px; height: 32px; fill: #ffffff; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05)); }
 
-    .hd h1 { font-size: 19px; font-weight: 700; color: #fff; }
-    .hd p  { font-size: 13px; color: rgba(255,255,255,.8); margin-top: 4px; font-weight: 300; }
+    .hd h1 { 
+      font-size: 22px; 
+      font-weight: 700; 
+      color: #ffffff; 
+      letter-spacing: 0.5px;
+    }
+    .hd p  { 
+      font-size: 13.5px; 
+      color: rgba(255, 255, 255, 0.85); 
+      margin-top: 6px; 
+      font-weight: 300;
+      line-height: 1.4;
+    }
 
-    .body { padding: 24px; }
+    /* Form Container Padding */
+    .body { padding: 28px; }
 
-    .field { margin-bottom: 16px; }
-    label  { display:block; font-size:12.5px; font-weight:600; color:var(--text-sub); margin-bottom:7px; letter-spacing:.3px; }
+    .field { margin-bottom: 20px; }
+    
+    label { 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13.5px; 
+      font-weight: 600; 
+      color: var(--text-sub); 
+      margin-bottom: 8px; 
+      letter-spacing: .2px; 
+    }
 
-    .inp-wrap { position:relative; }
+    /* New Input Guide Label Format Info (Era 5.0 UX Requirement) */
+    .format-info-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--green-dark);
+      background: var(--green-soft);
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid rgba(6, 199, 85, 0.15);
+      transition: all 0.2s;
+    }
+    
+    /* Input Container with Sleek Shadow Transitions */
+    .inp-wrap { position: relative; }
 
     .inp-wrap .ico {
-      position:absolute; left:14px; top:50%; transform:translateY(-50%);
-      width:18px; height:18px; stroke:var(--text-hint); fill:none;
-      stroke-width:1.8; transition:stroke .18s;
-      pointer-events:none;
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      width: 20px; height: 20px; stroke: var(--text-hint); fill: none;
+      stroke-width: 1.8; transition: stroke .2s, transform .2s;
+      pointer-events: none;
     }
 
     input[type=text],
     input[type=password] {
-      width:100%;
-      padding: 14px 14px 14px 44px;
+      width: 100%;
+      padding: 15px 16px 15px 48px;
       border: 1.5px solid var(--border);
       border-radius: var(--radius-sm);
       font-family: inherit;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 400;
       color: var(--text);
-      background: #FAFAFA;
+      background: #FFFFFF;
       outline: none;
       -webkit-appearance: none;
-      transition: border-color .18s, box-shadow .18s, background .18s;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
     }
 
+    /* Elegant floating label / focused input ring styling */
     input:focus {
-      border-color: var(--green);
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(6,199,85,.13);
+      border-color: var(--border-focus);
+      background: #FFFFFF;
+      box-shadow: var(--shadow-focus);
     }
 
-    .inp-wrap:focus-within .ico { stroke: var(--green); }
+    .inp-wrap:focus-within .ico { 
+      stroke: var(--green); 
+      transform: translateY(-50%) scale(1.05);
+    }
 
+    /* Input Guide / Hints under the Field */
+    .field-hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 11.5px;
+      color: var(--text-sub);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+    .field-hint svg {
+      width: 14px; height: 14px;
+      stroke: var(--green);
+      fill: none;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Advanced Smooth Eye Button */
     .eye {
-      position:absolute; right:12px; top:50%; transform:translateY(-50%);
-      background:none; border:none; cursor:pointer; padding:6px;
-      color:var(--text-hint); display:flex; align-items:center;
-      transition:color .18s; -webkit-appearance:none;
-      min-width:44px; min-height:44px; justify-content:center;
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; padding: 8px;
+      color: var(--text-hint); display: flex; align-items: center;
+      transition: color .2s, transform .1s; -webkit-appearance: none;
+      min-width: 40px; min-height: 40px; justify-content: center;
+      border-radius: 50%;
     }
-    .eye:hover { color:var(--text-sub); }
-    .eye svg   { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; }
+    .eye:hover { 
+      color: var(--text-sub); 
+      background: rgba(148, 163, 184, 0.08);
+    }
+    .eye:active { transform: translateY(-50%) scale(0.92); }
+    .eye svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 
+    /* Ultra-Premium Button with Glass reflection & Lift effect */
     .btn {
-      width:100%; padding: 15px;
-      background: var(--green);
-      color:#fff; border:none;
+      width: 100%; 
+      padding: 16px;
+      background: var(--primary-gradient);
+      color: #ffffff; 
+      border: none;
       border-radius: var(--radius-sm);
-      font-family:inherit; font-size:16px; font-weight:700;
-      cursor:pointer; margin-top:8px;
-      transition: background .18s, transform .1s;
-      -webkit-appearance:none;
+      font-family: inherit; 
+      font-size: 16px; 
+      font-weight: 700;
+      cursor: pointer; 
+      margin-top: 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(6, 199, 85, 0.25);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      -webkit-appearance: none;
       touch-action: manipulation;
     }
-    .btn:hover  { background: var(--green-dark); }
-    .btn:active { transform: scale(.98); }
-    .btn:disabled { background:#D1D5DB; cursor:not-allowed; }
+    
+    /* Shine Reflection Effect */
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -150%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transition: all 0.6s ease;
+    }
+    
+    .btn:hover::before {
+      left: 150%;
+    }
+
+    .btn:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(6, 199, 85, 0.35);
+    }
+    
+    .btn:active { 
+      transform: translateY(1px); 
+      box-shadow: 0 2px 10px rgba(6, 199, 85, 0.2);
+    }
+    
+    .btn:disabled { 
+      background: #E2E8F0; 
+      color: #94A3B8;
+      box-shadow: none;
+      cursor: not-allowed; 
+      transform: none;
+    }
 
     .btn .spin {
-      display:none; width:20px; height:20px;
-      border:2.5px solid rgba(255,255,255,.35);
-      border-top-color:#fff; border-radius:50%;
-      animation: rot .65s linear infinite;
-      margin:0 auto;
+      display: none; width: 22px; height: 22px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #ffffff; border-radius: 50%;
+      animation: rot .6s linear infinite;
+      margin: 0 auto;
     }
-    .btn.loading .lbl  { display:none; }
-    .btn.loading .spin { display:block; }
-    @keyframes rot { to{ transform:rotate(360deg) } }
+    .btn.loading .lbl  { display: none; }
+    .btn.loading .spin { display: block; }
+    @keyframes rot { to{ transform: rotate(360deg) } }
 
+    /* Modern Immersive Success View */
     .success {
-      display:none; flex-direction:column;
-      align-items:center; text-align:center;
-      padding: 40px 24px;
+      display: none; 
+      flex-direction: column;
+      align-items: center; 
+      text-align: center;
+      padding: 44px 24px;
+      animation: zoomIn .5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
     }
-    .success.show { display:flex; }
-    .body.hide    { display:none; }
+    .success.show { display: flex; }
+    .body.hide { display: none; }
 
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Success Tick with Ripple Rings */
     .tick {
-      width:68px; height:68px;
+      width: 80px; height: 80px;
       background: var(--green-soft);
-      border-radius:50%;
-      display:flex; align-items:center; justify-content:center;
-      margin-bottom:16px;
-      animation: pop .4s cubic-bezier(.34,1.56,.64,1) both;
+      border: 2px solid rgba(6, 199, 85, 0.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px;
+      position: relative;
+      box-shadow: 0 0 0 0 rgba(6, 199, 85, 0.2);
+      animation: pulseGlow 2s infinite, pop 0.5s cubic-bezier(.34,1.56,.64,1) both;
     }
-    .tick svg { width:34px; height:34px; stroke:var(--green); fill:none; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
-    @keyframes pop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    .tick svg { 
+      width: 40px; height: 40px; 
+      stroke: var(--green); fill: none; 
+      stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; 
+    }
+    
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 0 0 rgba(6, 199, 85, 0.3); }
+      70% { box-shadow: 0 0 0 15px rgba(6, 199, 85, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(6, 199, 85, 0); }
+    }
+    
+    @keyframes pop { 
+      from { transform: scale(0); opacity: 0; } 
+      to { transform: scale(1); opacity: 1; } 
+    }
 
-    .success h2 { font-size:18px; font-weight:700; margin-bottom:8px; }
-    .success p  { font-size:14px; color:var(--text-sub); line-height:1.6; }
+    .success h2 { 
+      font-size: 20px; 
+      font-weight: 700; 
+      margin-bottom: 12px; 
+      color: var(--text);
+    }
+    .success p  { 
+      font-size: 14px; 
+      color: var(--text-sub); 
+      line-height: 1.6; 
+    }
 
+    /* Interactive Soft Footer with security icon */
     .foot {
-      font-size:12px; color:var(--text-hint);
-      text-align:center; margin-top:8px;
-      line-height: 1.5;
+      font-size: 11.5px; 
+      color: var(--text-hint);
+      text-align: center; 
+      margin-top: 10px;
+      line-height: 1.6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .foot svg {
+      width: 14px; height: 14px;
+      stroke: currentColor;
+      fill: none;
+      flex-shrink: 0;
     }
   </style>
 </head>
@@ -276,10 +518,12 @@
     <!-- HEADER -->
     <div class="hd">
       <div class="logo">
-        <svg viewBox="0 0 24 24"><path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zm-2 10H6V10h12v2zm0-4H6V6h12v2z"/></svg>
+        <svg viewBox="0 0 24 24">
+          <path d="M20 2H4a2 2 0 00-2 2v18l4-4h14a2 2 0 002-2V4a2 2 0 00-2-2zm-2 10H6V10h12v2zm0-4H6V6h12v2z"/>
+        </svg>
       </div>
-      <h1>เข้าสู่ระบบ</h1>
-      <p>กรุณายืนยันตัวตนพนักงานเพื่อใช้งาน AI Assistant</p>
+      <h1>เข้าสู่ระบบพนักงาน</h1>
+      <p>ยืนยันสิทธิ์เข้าใช้ระบบ Line HRRX</p>
     </div>
 
     <!-- FORM INPUTS -->
@@ -287,9 +531,13 @@
 
       <!-- ช่องกรอก Username -->
       <div class="field">
-        <label for="username">ชื่อผู้ใช้ (Username)</label>
+        <label for="username">
+          <span>ชื่อผู้ใช้ (Username)</span>
+          <!-- LABEL แนะนำรูปแบบ Username -->
+          <span class="format-info-badge">💡 ตัวอย่าง: 1406</span>
+        </label>
         <div class="inp-wrap">
-          <input type="text" id="username" placeholder="กรอกชื่อผู้ใช้พนักงาน"
+          <input type="text" id="username" placeholder="กรอกชื่อผู้ใช้ หรือรหัสพนักงาน"
                  autocomplete="username" autocapitalize="none" spellcheck="false"
                  inputmode="text">
           <svg class="ico" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
@@ -297,14 +545,24 @@
             <circle cx="12" cy="7" r="4"/>
           </svg>
         </div>
+        <!-- คำแนะนำเพิ่มเติมด้านล่างช่องกรอกข้อมูล -->
+        <div class="field-hint">
+          <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <span>รูปแบบ: รหัสพนักงาน</span>
+        </div>
       </div>
 
       <!-- ช่องกรอก Password -->
       <div class="field">
-        <label for="password">รหัสผ่าน (Password)</label>
+        <label for="password">
+          <span>รหัสผ่าน (Password)</span>
+          <!-- LABEL แนะนำรูปแบบ Password -->
+          <span class="format-info-badge">💡 ตัวอย่าง: 1406</span>
+        </label>
         <div class="inp-wrap">
-          <input type="password" id="password" placeholder="กรอกรหัสผ่านพนักงาน"
-                 autocomplete="current-password">
+          <input type="password" id="password" placeholder="กรอกรหัสผ่านพนักงาน">
           <svg class="ico" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
           </svg>
@@ -314,6 +572,13 @@
               <circle cx="12" cy="12" r="3"/>
             </svg>
           </button>
+        </div>
+        <!-- คำแนะนำเพิ่มเติมด้านล่างช่องกรอกข้อมูล -->
+        <div class="field-hint">
+          <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          <span>รูปแบบ: รหัสพนักงานข</span>
         </div>
       </div>
 
@@ -330,13 +595,19 @@
       <div class="tick">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <h2>ยินดีต้อนรับพนักงานสำเร็จ!</h2>
+      <h2>ยืนยันสิทธิ์สำเร็จ!</h2>
       <p id="successName">กำลังปิดหน้าต่างนี้เพื่อคุยกับผู้ช่วย AI HR...</p>
     </div>
 
   </div>
 
-  <p class="foot">การเชื่อมต่อและข้อมูลทั้งหมดถูกปกป้องและเข้ารหัสตามมาตรฐาน PDPA</p>
+  <p class="foot">
+    <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+      <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </svg>
+    <span>ข้อมูลของท่านปลอดภัยตามนโยบายมาตรฐาน PDPA และความปลอดภัยขั้นสูง</span>
+  </p>
 
 </div>
 
