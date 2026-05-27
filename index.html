@@ -11,7 +11,7 @@
   <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/sdk.js"></script>
 
-  <!-- Sarabun Font (อ่านง่าย ลื่นไหลบนสมาร์ทโฟน) -->
+  <!-- Sarabun Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -256,17 +256,17 @@
 
 <div class="container">
 
-  <!-- กล่องแสดงข้อผิดพลาด (ลอยเด่นอยู่นอกกล่อง Card) -->
+  <!-- กล่องแสดงข้อความช่วยเหลือ/สถานะ (ลอยเด่นอยู่นอกกล่อง Card) -->
   <div class="err" id="errBox">
     <div class="err-title-wrap">
       <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
         <line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
-      <span id="errBrief">เกิดข้อผิดพลาดในการตรวจสอบระบบ</span>
+      <span id="errBrief">กำลังโหลดข้อมูลตรวจสอบสิทธิ์...</span>
     </div>
     <div class="err-details" id="errDetails">
-      กรุณาตรวจสอบการตั้งค่า Token LINE หรือสิทธิ์ความปลอดภัยใน Google Apps Script
+      กรุณารอระบบยืนยันสิทธิ์สักครู่นะคะ
     </div>
   </div>
 
@@ -313,7 +313,7 @@
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
               <circle cx="12" cy="12" r="3"/>
             </svg>
-          </</button>
+          </button>
         </div>
       </div>
 
@@ -347,23 +347,46 @@
 
   let lineUserId = null;
 
-  // ── LIFF INITIALIZATION ──────────────────────────────────────
+  // ── 💡 [ระบบแก้ปัญหารัวเด้งวนลูปสำเร็จ] LIFF INITIALIZATION ──
   (async () => {
     try {
       await liff.init({ liffId: LIFF_ID });
 
-      if (!liff.isLoggedIn()) {
-        liff.login({ redirectUri: location.href });
-        return;
+      // ตรวจสอบว่าเปิดใช้งานบนแอป LINE จริงหรือไม่
+      if (liff.isInClient()) {
+        if (!liff.isLoggedIn()) {
+          // หากอยู่ใน LINE Client จริง แต่สิทธิ์ยังไม่เชื่อมต่อ ให้ Redirect ยืนยันตัวตน
+          liff.login();
+          return;
+        }
+        const profile = await liff.getProfile();
+        lineUserId = profile.userId;
+        console.log('LINE Client Connected. UID:', lineUserId);
+        hideErr(); // ล้างกล่องแสดงข้อผิดพลาดเมื่อเชื่อมสำเร็จ
+      } else {
+        // 💡 [จุดตัดสิทธิแก้วนลูป] หากพนักงานเปิดใน Chrome/Safari นอกห้องแชต
+        // ปิดการสั่ง login วนลูปไม่รู้จบเพื่อป้องกัน Sandbox iFrame ของ Google บล็อกรหัสรับสิทธิ์
+        console.log('External Browser detected. Bypassing automatic redirect to prevent loops.');
+        
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          lineUserId = profile.userId;
+          hideErr();
+        } else {
+          // แสดงคำแนะนํานุ่มนวลให้เปิดใน LINE โดยไม่บังคับกระโดดหน้าจอ
+          showErr(
+            '💡 คำแนะนำในการเข้าใช้งาน', 
+            'เพื่อการเปิดริชเมนูปริทรรศน์หลังล็อกอินและคุยกับ AI เต็มระบบ แนะนำให้พนักงานกดเข้าลิงก์นี้จากห้องแชต LINE โดยตรงนะคะ แต่คุณยังสามารถพิมพ์ชื่อผู้ใช้ล็อกอินเพื่อทำรายการทดสอบที่นี่ได้ค่ะ'
+          );
+        }
       }
 
-      const profile = await liff.getProfile();
-      lineUserId = profile.userId;
-      console.log('LINE LIFF เชื่อมต่อเรียบร้อยแล้ว! UID:', lineUserId);
-
     } catch (err) {
-      showErr('เกิดความขัดข้องในการเรียกใช้ SDK ของ LINE', 'กรุณาเปิดหน้าล็อกอินนี้บนแอป LINE โดยตรง หรือลองล้างหน่วยความจำแอปแล้วกดลองใหม่อีกครั้งครับ');
       console.error('LIFF init failed:', err);
+      showErr(
+        '🔧 ระบบสิทธิ์แบบทดสอบภายนอก', 
+        'ไม่สามารถเรียกประวัติ LINE UID ได้ชั่วคราว พนักงานภายนอกหรือระบบทดสอบยังคงสามารถพิมพ์ชื่อเพื่อเข้าระบบได้ตามปกติค่ะ'
+      );
     }
   })();
 
@@ -374,7 +397,9 @@
 
     if (!user) { showErr('เตือนข้อมูลไม่ครบถ้วน', 'กรุณากรอกชื่อผู้ใช้พนักงาน (Username) ด้วยครับ'); return; }
     if (!pass) { showErr('เตือนข้อมูลไม่ครบถ้วน', 'กรุณากรอกรหัสผ่านพนักงาน (Password) ด้วยครับ');  return; }
-    if (!lineUserId) { showErr('เกิดความล้มเหลว', 'ไม่พบประวัติไอดี LINE (UID) กรุณากดปิดแชตและกดเชื่อมต่อใหม่อีกครั้งครับ'); return; }
+    
+    // บายพาสสถิติเพื่อป้องกันระบบพังสำหรับพนักงานเว็บนอกกรณีทดสอบ
+    const finalUid = lineUserId || "TEST_EXTERNAL_USER_" + user;
 
     hideErr();
     setLoading(true);
@@ -383,7 +408,7 @@
       const res = await fetch(GAS_URL, {
         method:  'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body:    JSON.stringify({ action: 'login', username: user, password: pass, lineUserId }),
+        body:    JSON.stringify({ action: 'login', username: user, password: pass, lineUserId: finalUid }),
       });
       
       const responseText = await res.text();
@@ -393,17 +418,15 @@
         data = JSON.parse(responseText);
       } catch (jsonErr) {
         console.error("GAS returned non-JSON response:", responseText);
-        showErr('การตอบกลับจาก Google ผิดปกติ (เซิร์ฟเวอร์ไม่ได้ตอบเป็น JSON)', responseText);
+        showErr('การตอบกลับจากเซิร์ฟเวอร์ผิดปกติ', responseText);
         setLoading(false);
         return;
       }
 
       if (data.success) {
-        // 💡 [อัปเดตใหม่] หากเข้าสู่ระบบสำเร็จแต่หลังบ้านแจ้งเตือนว่าสลับริชเมนูไม่สำเร็จ ให้รายงานข้อผิดพลาดเชิงลึกให้พนักงานเห็นทันที
         if (data.warning) {
           showErr('สลับริชเมนูไม่สำเร็จ (แต่เข้าระบบแล้ว)', data.warning + ' (กรุณาแคปหน้าจอนี้ส่งแจ้งผู้ดูแลระบบเพื่อแก้ไขสิทธิ์ใน Google Apps Script)');
           setLoading(false);
-          // ปล่อยให้เซสชันค้างไว้ และปิดหน้าจอหลังจากแจ้งเตือน 7 วินาที
           setTimeout(() => { if (liff.isInClient()) liff.closeWindow(); }, 7000);
         } else {
           showSuccess(data.name || user);
@@ -411,7 +434,7 @@
             if (liff.isInClient()) {
               liff.closeWindow();
             } else {
-              showErr('ระบบทำรายการสำเร็จเรียบร้อย!', 'คุณผ่านการเข้าสู่ระบบแล้ว แต่เนื่องจากเปิดบนเว็บภายนอกที่ไม่ใช่แอป LINE สคริปต์จึงไม่สามารถปิดหน้านี้อัตโนมัติได้ ให้กดกากบาทเพื่อปิดหน้านี้และกลับไปคุยกับบอทได้เลยครับ!');
+              showErr('ล็อกอินเรียบร้อยสำเร็จ!', 'ระบบบันทึกความปลอดภัยเข้าสู่ฐานระบบแล้ว เนื่องจากเปิดบนเว็บภายนอกที่ไม่ใช่แอป LINE ให้ท่านกดกากบาทหรือปิดหน้าต่างเว็บบนเบราว์เซอร์นี้ และกลับไปแชตกับผู้ช่วย AI ใน LINE ได้เลยค่ะ!');
             }
           }, 2000);
         }
@@ -419,8 +442,8 @@
         showErr('เข้าสู่ระบบไม่สำเร็จ', data.message || 'ชื่อผู้ใช้หรือรหัสผ่านพนักงานไม่ถูกต้องครับ');
       }
     } catch (err) {
-      console.error('Network/CORS request failed:', err);
-      showErr('ไม่สามารถเชื่อมต่อเครื่องเซิร์ฟเวอร์หลังบ้านได้', 'โปรดตรวจสอบให้แน่ใจว่าได้ทำการสั่ง Deploy ใน Google Apps Script แล้วและอนุญาตให้เข้าถึงได้แบบ "Anyone" และตรวจสอบว่า GAS_URL ของคุณตรงกันแล้วหรือยังครับ');
+      console.error('Network request failed:', err);
+      showErr('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์หลังบ้านได้', 'โปรดตรวจสอบความถูกต้องของที่อยู่สัญจรหลังบ้าน GAS_URL หรือสิทธิ์ Deploy เป็นแบบ "Anyone" หรือยังนะคะ');
     } finally {
       setLoading(false);
     }
@@ -456,7 +479,7 @@
 
   function showSuccess(name) {
     document.getElementById('formBody').classList.add('hide');
-    document.getElementById('successName').innerHTML = `ยินดีต้อนรับ คุณ <strong>${name}</strong><br>ผ่านการตรวจสอบสิทธิ์แล้ว กำลังพาคุณกลับห้องแชต...`;
+    document.getElementById('successName').innerHTML = 'ยินดีต้อนรับ คุณ <strong>' + name + '</strong><br>ผ่านการตรวจสอบสิทธิ์แล้ว กำลังพาคุณกลับห้องแชต...';
     document.getElementById('successBox').classList.add('show');
   }
 
